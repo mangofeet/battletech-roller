@@ -97,6 +97,15 @@ function preRoll() {
   
 }
 
+function renderRoll(roll) {
+  const dieSize = 24
+  return `
+<img width="${dieSize}" height="${dieSize}" alt="${roll[0]}" src="img/d6-${roll[0]}.svg">
+<img width="${dieSize}" height="${dieSize}" alt="${roll[1]}" src="img/d6-${roll[1]}.svg">
+<span style="font-size: 200%">|</span> <b>${rollTotal(roll)}</b>
+`
+}
+
 function handleRollButton() {
 
   preRoll()
@@ -113,7 +122,7 @@ function handleRollButton() {
     const total = rollTotal(roll)
     const location = hitTables[mechMode][hitDirection][total]
 
-    el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on ${hitDirection} table: ${location} ${total == 2 ? 'CRIT' : ''}<p>` + el.innerHTML
+    el.innerHTML = `<p>${renderRoll(roll)} on ${hitDirection} table: <b>${location} ${total == 2 ? 'CRIT' : ''}</b><p>` + el.innerHTML
   }
   
 
@@ -185,7 +194,7 @@ function handleRollClustersButton() {
     if (totalDamage - damagePerCluster < 0) {
       thisDamage = totalDamage
     }
-    el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on ${hitDirection} table: ${thisDamage} damage to ${location}<p>` + el.innerHTML
+    el.innerHTML = `<p>${renderRoll(roll)} on ${hitDirection} table: ${thisDamage} damage to <b>${location}</b><p>` + el.innerHTML
 
     if (!report[location]) {
       report[location] = thisDamage
@@ -202,7 +211,7 @@ function handleRollClustersButton() {
   }
   el.innerHTML = `<p>Totals:</p>` + el.innerHTML  
   
-  el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on cluster hits table: ${clusterHits}/${weaponSize} hits<p>` + el.innerHTML
+  el.innerHTML = `<p>${renderRoll(clusterRoll)} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits<p>` + el.innerHTML
   
   el.innerHTML = `<hr>` + el.innerHTML
   
