@@ -99,20 +99,47 @@ function handleRollButton() {
 
 }
 
-function handleRollClustersButton() {
-
+function getClusterConfig() {
   const inputDamagePerHit = document.getElementById("inputDamagePerHit")
   const inputDamageCluster = document.getElementById("inputDamageCluster")
   const inputWeaponSize = document.getElementById("inputWeaponSize")
 
-  const damagePerHit = parseInt(inputDamagePerHit.value || 1)
-  const damagePerCluster = parseInt(inputDamageCluster.value || 1)
-  const weaponSize = parseInt(inputWeaponSize.value || 1)
+  return {
+    damagePerHit: parseInt(inputDamagePerHit.value || 1),
+    damagePerCluster: parseInt(inputDamageCluster.value || 1),
+    weaponSize: parseInt(inputWeaponSize.value || 1),
+  }
+  
+}
+
+function handleSavePreset() {
+  const inputPresetName = document.getElementById("inputPresetName")
+
+  
+  const { damagePerHit, damagePerCluster, weaponSize } = getClusterConfig()
+  
+  const presetName = inputPresetName.value || `${damagePerHit}/Msl,C${damagePerCluster}/${weaponSize}`
+  
+  const el = document.getElementById("presets")
+  el.innerHTML = `<button onClick="handlePreset(${damagePerHit}, ${damagePerCluster}, ${weaponSize})">${presetName}</button>` + el.innerHTML
+}
+
+function handlePreset(damagePerHit, damagePerCluster, weaponSize) {
+  document.getElementById("inputDamagePerHit").value = damagePerHit
+  document.getElementById("inputDamageCluster").value = damagePerCluster
+  document.getElementById("inputWeaponSize").value = weaponSize
+  
+}
+
+function handleRollClustersButton() {
+
 
   const el = document.getElementById("resultArea")
   el.innerHTML = `<hr>` + el.innerHTML
 
   const roll = roll2d6()
+
+  const { damagePerHit, damagePerCluster, weaponSize } = getClusterConfig()
 
   let weaponSizeIndex = weaponSize - 2
   // adjust index for this one
@@ -169,6 +196,4 @@ function addListener(elementID, event, func) {
 }
 
 addListener('selectHitTable', 'change', handleHitTableChange)
-document.getElementById("inputDamagePerHit").value = 2
-document.getElementById("inputDamageCluster").value = 2
-document.getElementById("inputWeaponSize").value = 6
+handlePreset(2, 2, 6)

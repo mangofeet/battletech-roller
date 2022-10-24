@@ -33,9 +33,19 @@
 
         
         <button onclick="handleClearButton()">Clear</button>
+
+        <hr>
+
+        <label for="presetName">Preset Name (e.g. LRM 20)</label>
+        <input id="inputPresetName" name="presetName" />
+        <button onclick="handleSavePreset()">Save Preset</button>
+
+        <div id="presets"></div>
+
         
       </div>
       
+      <hr>
       <div id="resultArea"></div>
     </div>
     
