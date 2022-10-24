@@ -11,14 +11,20 @@
     
     <div class="container">
       
+      <label for="hitTable">Hit Table:</label>
       <div class="controls">
-        <button onclick="handleRollButton()">Roll Hits</button>
-        <select id="selectHitTable">
+        <select id="selectHitTable" name="hitTable">
           <option value="front">Front/Rear</option>
           <option value="left">Left</option>
           <option value="right">Right</option>
         </select>
-        
+
+        <hr>
+        <button onclick="handleRollButton()">Roll Hits</button>
+        <input class="input-number" id="inputRollCount" name="rollCount" type="number" />
+        <label for="rollCount"> Hits to roll</label>
+
+        <hr>
 
         <button onclick="handleRollClustersButton()">Roll Clusters</button>
 
@@ -31,18 +37,31 @@
         <label for="weaponSize">/</label>
         <input class="input-number" id="inputWeaponSize" name="weaponSize" type="number" />
 
+        <br>
+        <br>
+
         
-        <button onclick="handleClearButton()">Clear</button>
-
-        <hr>
-
-        <label for="presetName">Preset Name (e.g. LRM 20)</label>
+        <div id="presets">
+          Presets:
+          <button onClick="handlePreset(2, 2, 6)">SRM 6</button>
+          <button onClick="handlePreset(1, 5, 20)">LRM 20</button>
+          <button onClick="handlePreset(1, 1, 20)">LB 20-X AC</button>
+        </div>
+        
+        <br>
+        <br>
+        New Preset<br>
+        <label for="presetName">Preset Name</label>
         <input id="inputPresetName" name="presetName" />
         <button onclick="handleSavePreset()">Save Preset</button>
 
-        <div id="presets"></div>
-
+        <hr>
         
+        <button onclick="handleClearButton()">Clear Past Results</button>
+        <input type="checkbox" id="checkboxAutoClear" name="autoClear" />
+        <label for="autoClear">Auto Clear?</label>
+        
+
       </div>
       
       <hr>

@@ -88,15 +88,36 @@ function handleClearButton() {
   el.innerHTML = ``
 }
 
+function preRoll() {
+  const checkboxAutoClear = document.getElementById("checkboxAutoClear")
+  console.log(checkboxAutoClear, checkboxAutoClear.checked)
+  if (checkboxAutoClear.checked) {
+    handleClearButton()
+  }
+  
+}
+
 function handleRollButton() {
-  const roll = roll2d6()
 
-  const total = rollTotal(roll)
-  const location = hitTables[mechMode][hitDirection][total]
-
+  preRoll()
+  
+  const inputRollCount = document.getElementById("inputRollCount")
+  const rollCount = parseInt(inputRollCount.value || 1)
+  
   const el = document.getElementById("resultArea")
-  el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on ${hitDirection} table: ${location} ${total == 2 ? 'CRIT' : ''}<p>` + el.innerHTML
+  el.innerHTML = `<hr>` + el.innerHTML
+  
 
+  for (let i = 0; i < rollCount; i++) {
+    const roll = roll2d6()
+    const total = rollTotal(roll)
+    const location = hitTables[mechMode][hitDirection][total]
+
+    el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on ${hitDirection} table: ${location} ${total == 2 ? 'CRIT' : ''}<p>` + el.innerHTML
+  }
+  
+
+  el.innerHTML = `<hr>` + el.innerHTML
 }
 
 function getClusterConfig() {
@@ -133,6 +154,7 @@ function handlePreset(damagePerHit, damagePerCluster, weaponSize) {
 
 function handleRollClustersButton() {
 
+  preRoll()
 
   const el = document.getElementById("resultArea")
   el.innerHTML = `<hr>` + el.innerHTML
@@ -197,3 +219,4 @@ function addListener(elementID, event, func) {
 
 addListener('selectHitTable', 'change', handleHitTableChange)
 handlePreset(2, 2, 6)
+document.getElementById("inputRollCount").value = 1
