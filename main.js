@@ -172,7 +172,6 @@ function handleRollClustersButton() {
   const clusterRoll = roll2d6()
   const total = rollTotal(clusterRoll)
   const clusterHits = clusterHitsTable[total][weaponSizeIndex]
-  el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on cluster hits table: ${clusterHits}/${weaponSize} hits<p>` + el.innerHTML
 
   const report = {}
   
@@ -195,12 +194,15 @@ function handleRollClustersButton() {
     }
   }
 
+  
   el.innerHTML = `<hr>` + el.innerHTML
   
   for (const loc in report) {
     el.innerHTML = `<p>${loc}: ${report[loc]} damage</p>` + el.innerHTML  
   }
   el.innerHTML = `<p>Totals:</p>` + el.innerHTML  
+  
+  el.innerHTML = `<p>${roll[0]} + ${roll[1]} = ${total} on cluster hits table: ${clusterHits}/${weaponSize} hits<p>` + el.innerHTML
   
   el.innerHTML = `<hr>` + el.innerHTML
   
