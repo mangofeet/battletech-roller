@@ -248,10 +248,10 @@ function handleRollClustersButton() {
 
   let critData = ''
   if (critCount > 0) {
-    critData = `<b>${critCount} possible critical hit${critCount > 1 ? 's' : ''}!</b>`
+    critData = `<p><b>${critCount} possible critical hit${critCount > 1 ? 's' : ''}!</b></p>`
   }
 
-  rollData = tableData+critData+rollData
+  rollData = critData+tableData+rollData
   
   let clusterModText = ''
   if (clusterMod != 0) {
