@@ -61,6 +61,17 @@ const hitTables = {
   }
 }
 
+function hitTableText() {
+  switch (hitDirection) {
+  case "front":
+    return "Front/Rear"
+  case "left":
+    return "Left"
+  case "right":
+    return "Right"
+  }
+}
+
 function rollD6() {
   return Math.floor(Math.random() * 6)+1
 }
@@ -77,9 +88,6 @@ function rollTotal(roll) {
 
 
 function handleHitTableChange(evt) {
-  
-  console.log("hit table changed", evt)
-
   hitDirection = evt.target.value
 }
 
@@ -90,20 +98,51 @@ function handleClearButton() {
 
 function preRoll() {
   const checkboxAutoClear = document.getElementById("checkboxAutoClear")
-  console.log(checkboxAutoClear, checkboxAutoClear.checked)
   if (checkboxAutoClear.checked) {
     handleClearButton()
   }
   
 }
 
-function renderRoll(roll) {
+function renderDice(roll) {
   const dieSize = 24
   return `
-<img width="${dieSize}" height="${dieSize}" alt="${roll[0]}" src="img/d6-${roll[0]}.svg">
-<img width="${dieSize}" height="${dieSize}" alt="${roll[1]}" src="img/d6-${roll[1]}.svg">
-<span style="font-size: 200%">|</span> <b>${rollTotal(roll)}</b>
+<img class="icon" width="${dieSize}" height="${dieSize}" alt="${roll[0]}" src="img/d6-${roll[0]}.svg">
+<img class="icon" width="${dieSize}" height="${dieSize}" alt="${roll[1]}" src="img/d6-${roll[1]}.svg">
 `
+}
+
+function renderRollRow(roll, damage) {
+  const total = rollTotal(roll)
+  const location = hitTables[mechMode][hitDirection][total]
+
+  const isCrit = total == 2
+  
+  let data = `
+<td>${renderDice(roll)}</td>
+<td>${total}</td>
+<td>${location}${isCrit ? ' CRIT' : ''}</td>
+`
+
+  if (damage !== undefined) {
+    data += `<td>${damage}</td>`
+  }
+
+  return `<tr class="${isCrit ? 'crit' : ''}">${data}</tr>`
+}
+
+function getRowTableHeaders(damage) {
+  let data = `
+<td>Dice</td>
+<td>Total</td>
+<td>Location</td>
+`
+
+  if (damage !== undefined) {
+    data += `<td>Damage</td>`
+  }
+
+  return `<tr>${data}</tr>`
 }
 
 function handleRollButton() {
@@ -113,23 +152,23 @@ function handleRollButton() {
   const inputRollCount = document.getElementById("inputRollCount")
   const rollCount = parseInt(inputRollCount.value || 1)
   
-  const el = document.getElementById("resultArea")
-  el.innerHTML = `<hr>` + el.innerHTML
-  
+  let rows = ''
 
   for (let i = 0; i < rollCount; i++) {
-    const roll = roll2d6()
-    const total = rollTotal(roll)
-    const location = hitTables[mechMode][hitDirection][total]
-
-    el.innerHTML = `<p>${renderRoll(roll)} on ${hitDirection} table: <b>${location} ${total == 2 ? 'CRIT' : ''}</b><p>` + el.innerHTML
+    rows += renderRollRow(roll2d6())
   }
   
 
-  el.innerHTML = `<hr>` + el.innerHTML
+  const el = document.getElementById("resultArea")
+  el.innerHTML = `
+<hr>
+<h3>${rollCount} Roll${rollCount > 1 ? 's' : ''} on ${hitTableText()} table</h3>
+<table>${getRowTableHeaders()}${rows}</table>
+</hr>` + el.innerHTML
 }
 
 function getClusterConfig() {
+  const inputClusterMod = document.getElementById("inputClusterMod")
   const inputDamagePerHit = document.getElementById("inputDamagePerHit")
   const inputDamageCluster = document.getElementById("inputDamageCluster")
   const inputWeaponSize = document.getElementById("inputWeaponSize")
@@ -138,39 +177,20 @@ function getClusterConfig() {
     damagePerHit: parseInt(inputDamagePerHit.value || 1),
     damagePerCluster: parseInt(inputDamageCluster.value || 1),
     weaponSize: parseInt(inputWeaponSize.value || 1),
+    clusterMod: parseInt(inputClusterMod.value || 0)
   }
   
 }
 
-function handleSavePreset() {
-  const inputPresetName = document.getElementById("inputPresetName")
-
-  
-  const { damagePerHit, damagePerCluster, weaponSize } = getClusterConfig()
-  
-  const presetName = inputPresetName.value || `${damagePerHit}/Msl,C${damagePerCluster}/${weaponSize}`
-  
-  const el = document.getElementById("presets")
-  el.innerHTML = `<button onClick="handlePreset(${damagePerHit}, ${damagePerCluster}, ${weaponSize})">${presetName}</button>` + el.innerHTML
-}
-
-function handlePreset(damagePerHit, damagePerCluster, weaponSize) {
-  document.getElementById("inputDamagePerHit").value = damagePerHit
-  document.getElementById("inputDamageCluster").value = damagePerCluster
-  document.getElementById("inputWeaponSize").value = weaponSize
-  
-}
 
 function handleRollClustersButton() {
 
   preRoll()
 
-  const el = document.getElementById("resultArea")
-  el.innerHTML = `<hr>` + el.innerHTML
 
   const roll = roll2d6()
 
-  const { damagePerHit, damagePerCluster, weaponSize } = getClusterConfig()
+  const { damagePerHit, damagePerCluster, weaponSize, clusterMod } = getClusterConfig()
 
   let weaponSizeIndex = weaponSize - 2
   // adjust index for this one
@@ -179,10 +199,14 @@ function handleRollClustersButton() {
   }
 
   const clusterRoll = roll2d6()
-  const total = rollTotal(clusterRoll)
+  const total = Math.max(Math.min(12, rollTotal(clusterRoll) + (clusterMod || 0)))
   const clusterHits = clusterHitsTable[total][weaponSizeIndex]
 
   const report = {}
+  
+  
+  let rows = ''
+  let critCount = 0
   
   for (let totalDamage = clusterHits * damagePerHit; totalDamage > 0; totalDamage -= damagePerCluster) {
     const roll = roll2d6()
@@ -194,7 +218,10 @@ function handleRollClustersButton() {
     if (totalDamage - damagePerCluster < 0) {
       thisDamage = totalDamage
     }
-    el.innerHTML = `<p>${renderRoll(roll)} on ${hitDirection} table: ${thisDamage} damage to <b>${location}</b><p>` + el.innerHTML
+
+    if (total == 2) critCount++
+    
+    rows += renderRollRow(roll, thisDamage)
 
     if (!report[location]) {
       report[location] = thisDamage
@@ -203,17 +230,39 @@ function handleRollClustersButton() {
     }
   }
 
+  let rollData = `<h3>Location Rolls (${hitTableText()} table):</h3><table>${getRowTableHeaders(true)}${rows}</table>`
   
-  el.innerHTML = `<hr>` + el.innerHTML
+  let tableData = `
+<h3>Totals:</h3>
+<table>
+<tr>
+<th>Location</th>
+<th>Damage</th>
+</tr>
+`
   
   for (const loc in report) {
-    el.innerHTML = `<p>${loc}: ${report[loc]} damage</p>` + el.innerHTML  
+    tableData += `<tr><td>${loc}</td><td>${report[loc]}</td></tr>`
   }
-  el.innerHTML = `<p>Totals:</p>` + el.innerHTML  
+  tableData+= `</table>`
+
+  let critData = ''
+  if (critCount > 0) {
+    critData = `<b>${critCount} possible critical hit${critCount > 1 ? 's' : ''}!</b>`
+  }
+
+  rollData = tableData+critData+rollData
   
-  el.innerHTML = `<p>${renderRoll(clusterRoll)} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits<p>` + el.innerHTML
+  let clusterModText = ''
+  if (clusterMod != 0) {
+    clusterModText = ` + <b>${clusterMod}</b> = <b>${clusterMod+rollTotal(clusterRoll)}</b> (max 12, min 2)`
+  }
   
-  el.innerHTML = `<hr>` + el.innerHTML
+  rollData = `<p>${renderDice(clusterRoll)} = <b>${rollTotal(clusterRoll)}</b>${clusterModText} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits (<b>${clusterHits * damagePerHit}</b> total damage)<p>` + rollData
+  
+  
+  const el = document.getElementById("resultArea")
+  el.innerHTML = `<hr>${rollData}</hr>` + el.innerHTML
   
 
   
@@ -229,5 +278,7 @@ function addListener(elementID, event, func) {
 }
 
 addListener('selectHitTable', 'change', handleHitTableChange)
-handlePreset(2, 2, 6)
+addListener('selectPreset', 'change', handlePresetChange)
+handlePreset.apply(null, defaultPresets["LRM 20"])
+renderPresets()
 document.getElementById("inputRollCount").value = 1

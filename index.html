@@ -5,73 +5,88 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>Battletech Roller</title>
+    <link rel="stylesheet" href="./simple.css">
     <link rel="stylesheet" href="./style.css">
   </head>
   <body>
     
     <div class="container">
       
-      <label for="hitTable">Hit Table:</label>
-      <div class="controls">
-        <select id="selectHitTable" name="hitTable">
-          <option value="front">Front/Rear</option>
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-        </select>
-
-        <hr>
-        <button onclick="handleRollButton()">Roll Hits</button>
-        <input class="input-number" id="inputRollCount" name="rollCount" type="number" />
-        <label for="rollCount"> Hits to roll</label>
-
-        <hr>
-
-        <button onclick="handleRollClustersButton()">Roll Clusters</button>
-
-        <input class="input-number" id="inputDamagePerHit" name="damagePerHit" type="number" />
-        <label for="damagePerHit">/Msl</label>
+      <div class="flex controls">
         
-        <label for="damageCluster">C</label>
-        <input class="input-number" id="inputDamageCluster" name="damageCluster" type="number" />
-        
-        <label for="weaponSize">/</label>
-        <input class="input-number" id="inputWeaponSize" name="weaponSize" type="number" />
-
-        <br>
-        <br>
-
-        
-        <div id="presets">
-          Presets:
-          <button onClick="handlePreset(2, 2, 6)">SRM 6</button>
-          <button onClick="handlePreset(1, 5, 20)">LRM 20</button>
-          <button onClick="handlePreset(1, 1, 20)">LB 20-X AC</button>
+        <div class="flex">
+          <label for="hitTable">Hit Table:</label>
+          <select id="selectHitTable" name="hitTable">
+            <option value="front">Front/Rear</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
         </div>
-        
-        <br>
-        <br>
-        New Preset<br>
-        <label for="presetName">Preset Name</label>
-        <input id="inputPresetName" name="presetName" />
-        <button onclick="handleSavePreset()">Save Preset</button>
 
-        <hr>
+        <details class="flex">
+          <summary>Hit Location</summary>
+          <input class="input-number" id="inputRollCount" name="rollCount" type="number" />
+          <label for="rollCount"> Hits to roll</label>
+          <button onclick="handleRollButton()">Roll Hits</button>
+        </details>
+
+        <details class="flex">
+          <summary>Cluster Roll Presets</summary>
+          <div id="presets">
+            <label for="preset">Preset</label>
+            <select id="selectPreset" name="preset">
+            </select>
+          </div>
+          
+          <div>
+            <button onclick="handleRollClustersButton()">Roll Clusters</button>
+          </div>
+          
+        </details>
         
-        <button onclick="handleClearButton()">Clear Past Results</button>
-        <input type="checkbox" id="checkboxAutoClear" name="autoClear" />
-        <label for="autoClear">Auto Clear?</label>
+        <details class="flex">
+          <summary>Cluster Rolls</summary>
+          
+          <div>
+            <span>Weapon Configuration</span><br>
+            <input class="input-number" id="inputDamagePerHit" name="damagePerHit" type="number" />/Msl,C<input class="input-number" id="inputDamageCluster" name="damageCluster" type="number" />/<input class="input-number" id="inputWeaponSize" name="weaponSize" type="number" />
+          </div>
+          <div>
+            <label for="clusterMod">Cluster Roll Modifier</label>
+            <input class="input-number" id="inputClusterMod" name="clusterMod" type="number" />
+          </div>
+
+          <div>
+            <label for="presetName">New Preset</label>
+            <input id="inputPresetName" placeholder="Preset Name" name="presetName" />
+            <button onclick="handleSavePreset()">Save Preset</button>
+          </div>
+
+          <div>
+            <button onclick="handleRollClustersButton()">Roll Clusters</button>
+          </div>
+          
+        </details>
         
+        <div class="flex">
+          
+          <button onclick="handleClearButton()">Clear Past Results</button>
+          <input type="checkbox" id="checkboxAutoClear" name="autoClear" />
+          <label for="autoClear">Auto Clear?</label>
+          
+        </div>
 
       </div>
       
-      <hr>
-      <div id="resultArea"></div>
+      <div class="flex" id="resultArea"></div>
+      
     </div>
     
     <div class="footer">
       Dice icons provided by <a href="https://seekicon.com/artist/android-icons">android-icons</a> under the <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> license
     </div>
     
+    <script src="./presets.js"></script>
     <script src="./main.js"></script>
 
   </body>
