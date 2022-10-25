@@ -58,6 +58,47 @@ const hitTables = {
       11: "Left Leg",
       12: "Head"
     }
+  },
+  "quad": {
+    "front": {
+      2: "Center Torso",
+      3: "Right Front Leg",
+      4: "Right Front Leg",
+      5: "Right Rear Leg",
+      6: "Right Torso",
+      7: "Center Torso",
+      8: "Left Torso",
+      9: "Left Rear Leg",
+      10: "Left Front Leg",
+      11: "Left Front Leg",
+      12: "Head"
+    },
+    "left": {
+      2: "Left Torso",
+      3: "Left Rear Leg",
+      4: "Left Front Leg",
+      5: "Left Front Leg",
+      6: "Left Rear Leg",
+      7: "Left Torso",
+      8: "Center Torso",
+      9: "Right Torso",
+      10: "Right Front Leg",
+      11: "Right Rear Leg",
+      12: "Head"
+    },
+    "right": {
+      2: "Center Torso",
+      3: "Right Rear Leg",
+      4: "Right Front Leg",
+      5: "Right Front Leg",
+      6: "Right Rear Leg",
+      7: "Right Torso",
+      8: "Center Torso",
+      9: "Left Torso",
+      10: "Left Front Leg",
+      11: "Left Leg",
+      12: "Head"
+    }
   }
 }
 
@@ -89,6 +130,10 @@ function rollTotal(roll) {
 
 function handleHitTableChange(evt) {
   hitDirection = evt.target.value
+}
+
+function handleTargetTypeChange(evt) {
+  mechMode = evt.target.value
 }
 
 function handleClearButton() {
@@ -278,6 +323,7 @@ function addListener(elementID, event, func) {
 }
 
 addListener('selectHitTable', 'change', handleHitTableChange)
+addListener('selectTargetType', 'change', handleTargetTypeChange)
 addListener('selectPreset', 'change', handlePresetChange)
 handlePreset.apply(null, defaultPresets["LRM 20"])
 renderPresets()
