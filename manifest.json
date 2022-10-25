@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "BattleTech Roller",
+  "short_name": "BT Roller",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "Dice rolling utility for BattleTech.",
+  "orientation": "portrait"
+}
