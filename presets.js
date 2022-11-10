@@ -11,6 +11,12 @@ const defaultPresets = {
   "Streak SRM 6": [2, 2, 6, 12],
   "Streak SRM 4": [2, 2, 4, 12],
   "Streak SRM 2": [2, 2, 2, 12],
+  "Ultra AC/2": [2, 2, 2, 0],
+  "Ultra AC/5": [5, 5, 2, 0],
+  "Ultra AC/10": [10, 10, 2, 0],
+  "Ultra AC/20": [20, 20, 2, 0],
+  "Rotary AC/2": [2, 2, 6, 0],
+  "Rotary AC/5": [5, 5, 6, 0],
   "LB 20-X AC": [1, 1, 20, 0],
   "LB 10-X AC": [1, 1, 10, 0],
   "LB 5-X AC": [1, 1, 5, 0],
@@ -92,7 +98,14 @@ function getPresets() {
   const data = localStorage.getItem('presets')
   if (!data) return defaultPresets
   else try {
-    return JSON.parse(data)
+    const presets = JSON.parse(data)
+    for (const k in defaultPresets) {
+      if (!presets[k]) {
+        presets[k] = defaultPresets[k]
+      }
+    }
+    setPresets(presets)
+    return presets
   } catch (err) {
     setPresets(defaultPresets)
     return defaultPresets
