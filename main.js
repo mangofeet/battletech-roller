@@ -339,7 +339,7 @@ const registerServiceWorker = async () => {
     const registration = await navigator.serviceWorker.register(
       './sw.js',
       {
-        scope: '/',
+        scope: '/battletech-roller/',
       }
     );
     if (registration.installing) {

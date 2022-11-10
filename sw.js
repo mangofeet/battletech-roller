@@ -60,24 +60,24 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     addResourcesToCache([
-      '/',
-      '/index.html',
-      '/simple.css',
-      '/style.css',
-      '/main.js',
-      '/presets.js',
-      '/img/d6-1.svg',
-      '/img/d6-2.svg',
-      '/img/d6-3.svg',
-      '/img/d6-4.svg',
-      '/img/d6-5.svg',
-      '/img/d6-6.svg',
-      '/img/icon/android-chrome-192x192.png',
-      '/img/icon/android-chrome-512x512.png',
-      '/img/icon/apple-touch-icon.png',
-      '/img/icon/favicon-16x16.png',
-      '/img/icon/favicon-32x32.png',
-      '/img/icon/favicon.ico',
+      '/battletech-roller/',
+      '/battletech-roller/index.html',
+      '/battletech-roller/simple.css',
+      '/battletech-roller/style.css',
+      '/battletech-roller/main.js',
+      '/battletech-roller/presets.js',
+      '/battletech-roller/img/d6-1.svg',
+      '/battletech-roller/img/d6-2.svg',
+      '/battletech-roller/img/d6-3.svg',
+      '/battletech-roller/img/d6-4.svg',
+      '/battletech-roller/img/d6-5.svg',
+      '/battletech-roller/img/d6-6.svg',
+      '/battletech-roller/img/icon/android-chrome-192x192.png',
+      '/battletech-roller/img/icon/android-chrome-512x512.png',
+      '/battletech-roller/img/icon/apple-touch-icon.png',
+      '/battletech-roller/img/icon/favicon-16x16.png',
+      '/battletech-roller/img/icon/favicon-32x32.png',
+      '/battletech-roller/img/icon/favicon.ico',
     ])
   );
 });
@@ -87,7 +87,7 @@ self.addEventListener('fetch', (event) => {
     cacheFirst({
       request: event.request,
       preloadResponsePromise: event.preloadResponse,
-      fallbackUrl: '/img/icon/apple-touch-icon.png',
+      fallbackUrl: '/battletech-roller/img/icon/apple-touch-icon.png',
     })
   );
 });
