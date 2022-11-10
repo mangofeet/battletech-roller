@@ -207,6 +207,7 @@ function handleRollButton() {
   const el = document.getElementById("resultArea")
   el.innerHTML = `
 <hr>
+<h5>${date()}</h5>
 <h3>${rollCount} Roll${rollCount > 1 ? 's' : ''} on ${hitTableText()} table</h3>
 <table>${getRowTableHeaders()}${rows}</table>
 </hr>` + el.innerHTML
@@ -307,11 +308,15 @@ function handleRollClustersButton() {
   
   
   const el = document.getElementById("resultArea")
-  el.innerHTML = `<hr>${rollData}</hr>` + el.innerHTML
+  el.innerHTML = `<hr><h5>${date()}</h5>${rollData}</hr>` + el.innerHTML
   
 
   
 
+}
+
+function date() {
+  return new Date().toLocaleString()
 }
 
 function addListener(elementID, event, func) {
