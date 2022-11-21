@@ -12,7 +12,8 @@ const putInCache = async (request, response) => {
 
 const cacheFirst = async ({ request, preloadResponsePromise, fallbackUrl }) => {
   // First try to get the resource from the cache
-  const responseFromCache = await caches.match(request);
+  const cache = await caches.open(cacheVersion);
+  let responseFromCache = await cache.match(request);
   if (responseFromCache) {
     return responseFromCache;
   }
