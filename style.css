@@ -10,10 +10,7 @@ body {
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
-}
-
-.container .flex:not(:first-child) {
-  margin-right: var(--gutter);
+  gap: 1em;
 }
 
 .container .flex.grow {
@@ -24,6 +21,7 @@ body {
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
+  width: 30%;
 }
 
 .input-number {
