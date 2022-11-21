@@ -52,3 +52,18 @@ tr.crit  .icon {
 }
 
 
+.btn-group {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+.btn-group button {
+  flex: 1;
+}
+
+.btn-group button.active {
+  background-color: #2d67c1;
+}

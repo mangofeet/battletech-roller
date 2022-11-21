@@ -1,7 +1,6 @@
 'use strict'
 
 let mechMode = "biped"
-let hitDirection = "front"
 
 const clusterHitsTable = {
   2:  [1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9, 10, 10, 12],
@@ -15,6 +14,12 @@ const clusterHitsTable = {
   10: [2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 11, 12, 13, 14, 14, 15, 16, 17, 18, 19, 20, 21, 21, 22, 23, 23, 24, 32],
   11: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 40],
   12: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 40],
+}
+
+const locationLabels = {
+  "front": "Front/Rear",
+  "left": "Left",
+  "right": "Right"
 }
 
 const hitTables = {
@@ -46,7 +51,7 @@ const hitTables = {
       12: "Head"
     },
     "right": {
-      2: "Center Torso",
+      2: "Right Torso",
       3: "Right Leg",
       4: "Right Arm",
       5: "Right Arm",
@@ -87,7 +92,7 @@ const hitTables = {
       12: "Head"
     },
     "right": {
-      2: "Center Torso",
+      2: "Right Torso",
       3: "Right Rear Leg",
       4: "Right Front Leg",
       5: "Right Front Leg",
@@ -99,17 +104,6 @@ const hitTables = {
       11: "Left Leg",
       12: "Head"
     }
-  }
-}
-
-function hitTableText() {
-  switch (hitDirection) {
-  case "front":
-    return "Front/Rear"
-  case "left":
-    return "Left"
-  case "right":
-    return "Right"
   }
 }
 
@@ -127,10 +121,6 @@ function rollTotal(roll) {
   return roll[0] + roll[1]
 }
 
-
-function handleHitTableChange(evt) {
-  hitDirection = evt.target.value
-}
 
 function handleTargetTypeChange(evt) {
   mechMode = evt.target.value
@@ -157,10 +147,10 @@ function renderDice(roll) {
 `
 }
 
-function renderRollRow(roll, damage) {
+function renderRollRow(locTable, roll, damage) {
   const total = rollTotal(roll)
-  const location = hitTables[mechMode][hitDirection][total]
-
+  const location = hitTables[mechMode][locTable][total]
+  
   const isCrit = total == 2
   
   let data = `
@@ -174,6 +164,17 @@ function renderRollRow(roll, damage) {
   }
 
   return `<tr class="${isCrit ? 'crit' : ''}">${data}</tr>`
+}
+
+function renderTableButtons(id, tableType) {
+  let data = '<div class="btn-group">'
+  for (const loc in hitTables[tableType]) {
+    data += `<button id="btn-${id}-${tableType}-${loc}" class="btn-${id}">${locationLabels[loc]}</button>`
+  }
+
+  data += '</div>'
+
+  return data
 }
 
 function getRowTableHeaders(damage) {
@@ -190,27 +191,9 @@ function getRowTableHeaders(damage) {
   return `<tr>${data}</tr>`
 }
 
+
 function handleRollButton() {
-
-  preRoll()
-  
-  const inputRollCount = document.getElementById("inputRollCount")
-  const rollCount = parseInt(inputRollCount.value || 1)
-  
-  let rows = ''
-
-  for (let i = 0; i < rollCount; i++) {
-    rows += renderRollRow(roll2d6())
-  }
-  
-
-  const el = document.getElementById("resultArea")
-  el.innerHTML = `
-<hr>
-<h5>${date()}</h5>
-<h3>${rollCount} Roll${rollCount > 1 ? 's' : ''} on ${hitTableText()} table</h3>
-<table>${getRowTableHeaders()}${rows}</table>
-</hr>` + el.innerHTML
+  doRolling(false)
 }
 
 function getClusterConfig() {
@@ -230,13 +213,23 @@ function getClusterConfig() {
 
 
 function handleRollClustersButton() {
+  doRolling(true)
+}
+
+function doRolling(clusters = false) {
 
   preRoll()
 
 
   const roll = roll2d6()
 
-  const { damagePerHit, damagePerCluster, weaponSize, clusterMod } = getClusterConfig()
+  let { damagePerHit, damagePerCluster, weaponSize, clusterMod } = getClusterConfig()
+  if (!clusters) {
+    damagePerHit = 1
+    damagePerCluster = 1
+    weaponSize = -1
+    clusterMod = 0
+  }
 
   let weaponSizeIndex = weaponSize - 2
   // adjust index for this one
@@ -246,71 +239,146 @@ function handleRollClustersButton() {
 
   const clusterRoll = roll2d6()
   const total = Math.max(Math.min(12, rollTotal(clusterRoll) + (clusterMod || 0)))
-  const clusterHits = clusterHitsTable[total][weaponSizeIndex]
+  
+  let clusterHits = clusterHitsTable[total][weaponSizeIndex]
+  
+  if (!clusters) {
+    // get the input for the roll count here, fake it as "clusterHits"
+    const inputRollCount = document.getElementById("inputRollCount")
+    clusterHits = parseInt(inputRollCount.value || 1)
+  }
 
-  const report = {}
-  
-  
-  let rows = ''
   let critCount = 0
   
+  const rolls = []
+  
   for (let totalDamage = clusterHits * damagePerHit; totalDamage > 0; totalDamage -= damagePerCluster) {
-    const roll = roll2d6()
-
-    const total = rollTotal(roll)
-    const location = hitTables[mechMode][hitDirection][total]
-
     let thisDamage = damagePerCluster
     if (totalDamage - damagePerCluster < 0) {
       thisDamage = totalDamage
     }
-
+    
+    const roll = roll2d6()
+    
+    const total = rollTotal(roll)
     if (total == 2) critCount++
     
-    rows += renderRollRow(roll, thisDamage)
-
-    if (!report[location]) {
-      report[location] = thisDamage
-    } else {
-      report[location] += thisDamage 
-    }
+    rolls.push({
+      damage: thisDamage,
+      roll
+    })
   }
 
-  let rollData = `<h3>Location Rolls (${hitTableText()} table):</h3><table>${getRowTableHeaders(true)}${rows}</table>`
+  let tables = ''
+
+  const btnID = (new Date()).getTime()
   
-  let tableData = `
-<h3>Totals:</h3>
+  for (const locTable in hitTables[mechMode]) {
+    
+    const report = {}
+    
+    
+    let rows = ''
+    
+    for (const data of rolls) {
+      
+      const roll = data.roll
+      const thisDamage = data.damage
+      
+      const total = rollTotal(roll)
+
+
+      
+      rows += renderRollRow(locTable, roll, clusters ? thisDamage : undefined)
+
+      const location = hitTables[mechMode][locTable][total]
+      
+      if (!report[location]) {
+        report[location] = thisDamage
+      } else {
+        report[location] += thisDamage 
+      }
+
+    }
+
+    
+    let tableData = `
+<div class="roll-totals-${btnID}" id="totals-${btnID}-${mechMode}-${locTable}" style="display: none;"> `
+    
+
+    if (clusters) {
+      
+    tableData += `
+
+<h3>${locationLabels[locTable]} Totals:</h3>
 <table>
 <tr>
 <th>Location</th>
 <th>Damage</th>
 </tr>
 `
-  
-  for (const loc in report) {
-    tableData += `<tr><td>${loc}</td><td>${report[loc]}</td></tr>`
+    
+    for (const loc in report) {
+      tableData += `<tr><td>${loc}</td><td>${report[loc]}</td></tr>`
+    }
+      
+    }
+    
+    tableData+= `</table>
+<h3>${locationLabels[locTable]} Location Rolls:</h3><table>${getRowTableHeaders(clusters ? true : undefined)}${rows}</table>
+</div>`
+    
+    tables += tableData
+    
   }
-  tableData+= `</table>`
 
   let critData = ''
   if (critCount > 0) {
     critData = `<p><b>${critCount} possible critical hit${critCount > 1 ? 's' : ''}!</b></p>`
   }
 
-  rollData = critData+tableData+rollData
+  let rollData = critData+ renderTableButtons(btnID, mechMode) +tables
   
   let clusterModText = ''
   if (clusterMod != 0) {
     clusterModText = ` + <b>${clusterMod}</b> = <b>${clusterMod+rollTotal(clusterRoll)}</b> (max 12, min 2)`
   }
   
-  rollData = `<p>${renderDice(clusterRoll)} = <b>${rollTotal(clusterRoll)}</b>${clusterModText} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits (<b>${clusterHits * damagePerHit}</b> total damage)<p>` + rollData
-  
+  if (clusters) {
+  rollData = `<p>${renderDice(clusterRoll)} = <b>${rollTotal(clusterRoll)}</b>${clusterModText} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits (<b>${clusterHits * damagePerHit}</b> total damage)<p>` + rollData  
+  }
   
   const el = document.getElementById("resultArea")
   el.innerHTML = `<hr><h5>${date()}</h5>${rollData}</hr>` + el.innerHTML
   
 
+  
+  for (const locTable in hitTables[mechMode]) {
+    const btn = document.getElementById(`btn-${btnID}-${mechMode}-${locTable}`)
+
+    btn.addEventListener('click', () => {
+
+      for (const el of document.getElementsByClassName(`btn-${btnID}`)) {
+        el.classList.remove('active')
+      }
+      
+      btn.classList.add('active')
+      
+      for (const el of document.getElementsByClassName(`roll-totals-${btnID}`)) {
+        el.style.display = 'none'
+      }
+
+      const totals = document.getElementById(`totals-${btnID}-${mechMode}-${locTable}`)
+      totals.style.display = 'block'
+      
+    })
+
+    if (locTable == 'front') {
+      btn.classList.add('active')
+      document.getElementById(`totals-${btnID}-${mechMode}-${locTable}`).style.display = 'block'
+    }
+    
+  }
   
 
 }
@@ -327,7 +395,6 @@ function addListener(elementID, event, func) {
   }
 }
 
-addListener('selectHitTable', 'change', handleHitTableChange)
 addListener('selectTargetType', 'change', handleTargetTypeChange)
 addListener('selectPreset', 'change', handlePresetChange)
 handlePreset.apply(null, defaultPresets["LRM 20"])
