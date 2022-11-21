@@ -496,7 +496,7 @@ function doRolling(clusters = false) {
   const el = document.getElementById("resultArea")
   el.innerHTML = `
 <hr>
-<h5>${date()}</h5>
+<h5>Roll ID: ${btnID} @ ${date()}</h5>
 ${renderModeButtons(btnID)}
 ${rollData}
 </hr>` + el.innerHTML
