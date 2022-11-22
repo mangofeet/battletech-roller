@@ -415,7 +415,7 @@ function doRolling(clusters = false) {
       for (const data of rolls) {
         
         const roll = data.roll
-        const thisDamage = data.damage
+        let thisDamage = data.damage
         
         const total = rollTotal(roll)
 
@@ -423,9 +423,14 @@ function doRolling(clusters = false) {
         
         if (isMotive(mechMode, locTable, total)) motiveCount++
         
+        const location = hitTables[mechMode][locTable][total]
+
+        if (location == "Rotors") {
+          thisDamage = Math.ceil(thisDamage / 10)
+        }
+        
         rows += renderRollRow(mechMode, locTable, roll, clusters ? thisDamage : undefined)
 
-        const location = hitTables[mechMode][locTable][total]
         
         if (!report[location]) {
           report[location] = thisDamage
