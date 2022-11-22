@@ -489,14 +489,16 @@ function doRolling(clusters = false) {
     clusterModText = ` + <b>${clusterMod}</b> = <b>${clusterMod+rollTotal(clusterRoll)}</b> (max 12, min 2)`
   }
   
+  let clusterText = ''
   if (clusters) {
-    rollData = `<p>${renderDice(clusterRoll)} = <b>${rollTotal(clusterRoll)}</b>${clusterModText} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits (<b>${clusterHits * damagePerHit}</b> total damage)<p>` + rollData  
+    clusterText = `<p>${renderDice(clusterRoll)} = <b>${rollTotal(clusterRoll)}</b>${clusterModText} on cluster hits table: <b>${clusterHits}</b>/${weaponSize} hits (<b>${clusterHits * damagePerHit}</b> total damage)<p>`
   }
   
   const el = document.getElementById("resultArea")
   el.innerHTML = `
 <hr>
 <h5>Roll ID: ${btnID} @ ${date()}</h5>
+${clusterText}
 ${renderModeButtons(btnID)}
 ${rollData}
 </hr>` + el.innerHTML
