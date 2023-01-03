@@ -405,7 +405,7 @@ function doRolling(clusters = false) {
     for (const locTable in hitTables[mechMode]) {
       
       const report = {}
-      
+      const critmotive = {}
       
       let rows = ''
       
@@ -419,11 +419,18 @@ function doRolling(clusters = false) {
         
         const total = rollTotal(roll)
 
-        if (isCrit(mechMode, locTable, total)) critCount++
-        
-        if (isMotive(mechMode, locTable, total)) motiveCount++
-        
         const location = hitTables[mechMode][locTable][total]
+        
+        if (isCrit(mechMode, locTable, total)) {
+          critCount++
+          critmotive[location] = true
+        }
+        
+        if (isMotive(mechMode, locTable, total)) {
+          motiveCount++
+          critmotive[location] = true
+        }
+        
 
         if (location == "Rotors") {
           thisDamage = Math.ceil(thisDamage / 10)
@@ -433,9 +440,9 @@ function doRolling(clusters = false) {
 
         
         if (!report[location]) {
-          report[location] = thisDamage
+          report[location] = [thisDamage]
         } else {
-          report[location] += thisDamage 
+          report[location].push(thisDamage )
         }
 
       }
@@ -469,7 +476,10 @@ function doRolling(clusters = false) {
 `
         
         for (const loc in report) {
-          tableData += `<tr><td>${loc}</td><td>${report[loc]}</td></tr>`
+          if (report[loc].length > 1)
+            tableData += `<tr class="${critmotive[loc] ? "crit" : ""}"><td>${loc}</td><td>${report[loc].reduce((acc, v) => acc+v)} (${report[loc].join(" + ")})</td></tr>`
+          else
+            tableData += `<tr class="${critmotive[loc] ? "crit" : ""}"><td>${loc}</td><td>${report[loc].reduce((acc, v) => acc+v)}</td></tr>`
         }
         
       }
